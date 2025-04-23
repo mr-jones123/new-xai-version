@@ -28,7 +28,6 @@ def lime_prediction_function(text_inputs):
         logits = outputs.logits
         softmax_probs = F.softmax(logits, dim=-1)
         
-        # Get the probability scores for each class
         prob_scores.append(softmax_probs[0].tolist())
 
     return np.array(prob_scores)  # Convert to NumPy array for LIME compatibility
