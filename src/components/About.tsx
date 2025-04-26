@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { ProfileCard } from "@/components/profile";
-import ProfileDialog from "./dialog";
+import { ProfileCard } from "@/components/Profile";
+import ProfileDialog from "./Dialog";
 
 const developers = [
   {

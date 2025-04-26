@@ -1,17 +1,17 @@
 import { Metadata } from "next";
-import {Geist_Mono} from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import NavBarWrapper from "@/utils/navBarWrapper";
+import NavBarWrapper from "@/utils/NavBarWrapper";
 
 const geist = Geist_Mono({
-    subsets : ['latin'],
-    variable : "--font-geist"
-})
+  subsets: ["latin"],
+  variable: "--font-geist",
+});
 const sentient = localFont({
   src: "./fonts/sentient.ttf",
-  variable : "--font-sentient"
-})
+  variable: "--font-sentient",
+});
 
 export const metadata: Metadata = {
   title: "XeeAI",

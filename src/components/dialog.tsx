@@ -1,9 +1,4 @@
-import {
-  Dialog,
-  DialogHeader,
-  DialogContent,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogHeader, DialogContent, DialogTitle } from "./ui/dialog";
 import Image from "next/image";
 
 interface profileDialogProps {
