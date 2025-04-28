@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ChatInterface from "@/components/ChatInterface";
+import ExplanationPanel from "./ExplanationPanel";
 
 interface ResponseType {
   // explanation: string;
@@ -40,7 +41,14 @@ export default function Chatbot() {
       const data: ResponseType = JSON.parse(text);
 
       // You can modify the returned format here if you want.
-      return `AI Response: ${data.AIResponse}\nExplanation: ${data.LIMEOutput}`;
+      setResponse(data);
+      try {
+        const parsedLIME = JSON.parse(data.LIMEOutput);
+        console.log("Parsed LIME Output:", parsedLIME);
+      } catch (error) {
+        console.error("Error parsing LIME Output:", error);
+      }
+      return `AI Response: ${data.AIResponse}`;
     } catch (error) {
       console.error("Error fetching data:", error);
       return "Sorry, something went wrong.";
@@ -77,8 +85,18 @@ export default function Chatbot() {
         </Card>
       )}
     </div>*/
-    <div className="max-w-4xl mx-auto p-4">
-      <ChatInterface onSubmit={handleSubmit} loading={false} />
+    <div className="flex max-w-7xl mx-auto p-4 h-[100dvh] gap-4">
+      {/* Chat takes up full space when no explanation, otherwise flex-1 */}
+      <div className={response ? "flex-1" : "w-full"}>
+        <ChatInterface onSubmit={handleSubmit} loading={loading} />
+      </div>
+
+      {/* Explanation panel only renders when there's data */}
+      {response && (
+        <div className="w-[350px] hidden md:block">
+          <ExplanationPanel aiDetails={response} />
+        </div>
+      )}
     </div>
   );
 }
