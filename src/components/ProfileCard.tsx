@@ -1,11 +1,18 @@
 import React from "react";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface ProfileProps {
   name: string;
   role: string;
   image: string;
+
   onClick?: () => void;
 }
 
