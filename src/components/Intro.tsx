@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { ContainerScroll } from "./ui/container-scroll-animation";
+// import { ContainerScroll } from "./ui/container-scroll-animation";
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image";
 import { FlipWords } from "@/components/ui/flip-words";
 import MaskedEffect from "@/components/MaskedEffect";
+import HowItWorks from "./HowItWorks";
+import WhyChooseUs from "@/components/WhyChooseUs";
+import ExplainabilitySection from "./ExplainabilitySection";
+import TeamSection from "./TeamSection";
 const Intro = () => {
   const words = ["Transparency", "Interpretability", "Explainability"];
   return (
@@ -34,17 +38,24 @@ const Intro = () => {
           </section>
 
           <section>
-            <ContainerScroll>
-              <Image
-                src={"/ai-assistant.png"}
-                width={200}
-                height={200}
-                alt="Si Aiverson"
-              />
-            </ContainerScroll>
+            <HowItWorks />
+          </section>
+
+          <section>
+            <ExplainabilitySection />
+          </section>
+
+          <section>
+            <WhyChooseUs />
           </section>
 
           <MaskedEffect />
+
+          <section>
+            <TeamSection />
+          </section>
+
+          
         </main>
       </div>
     </div>
