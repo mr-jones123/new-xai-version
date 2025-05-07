@@ -4,7 +4,7 @@ interface ExplanationPanelProps {
   aiDetails: {
     // Explanation: string;
     AIResponse: string;
-    LIMEOutput: string;
+    LIMEOutput: Array<{ feature: string; weight: number }>;
   } | null;
 }
 
@@ -19,9 +19,13 @@ export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
             <h2 className="text-lg font-bold">AI Response</h2>
             <p>{aiDetails.AIResponse}</p>
           </div>
-          <div>
-            <h2 className="text-lg font-bold">LIME Output</h2>
-            <p>{aiDetails.LIMEOutput}</p>
+          <div className="space-y-1">
+            {aiDetails.LIMEOutput.map((item, index) => (
+              <p key={index}>
+                <span className="font-semibold">{item.feature}</span>:{" "}
+                {item.weight.toFixed(4)}
+              </p>
+            ))}
           </div>
         </div>
       </CardContent>

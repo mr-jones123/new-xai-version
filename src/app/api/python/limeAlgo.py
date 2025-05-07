@@ -65,9 +65,12 @@ def limeAlgorithm():
 
         # Generate an explanation for the comment
         exp = explainer.explain_instance(input_text, lime_prediction_function, num_features=5, num_samples=100)
+
+        #test
+        lime_output = [{"feature": feature, "weight": weight} for feature, weight in exp.as_list()]
         
         response = {
-            "LIMEOutput": exp.as_list(), # Make sure 'LIMEOutput' exists in response
+            "LIMEOutput": lime_output,
             "AIResponse" : gptResponse(input_text)
         }
         return response, 200   # Return JSON response with status 200

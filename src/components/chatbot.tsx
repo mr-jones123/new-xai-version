@@ -9,7 +9,7 @@ import ExplanationPanel from "./ExplanationPanel";
 interface ResponseType {
   // explanation: string;
   AIResponse: string;
-  LIMEOutput: string;
+  LIMEOutput: { feature: string; weight: number }[];
 }
 
 export default function Chatbot() {
@@ -43,7 +43,7 @@ export default function Chatbot() {
       // You can modify the returned format here if you want.
       setResponse(data);
       try {
-        const parsedLIME = JSON.parse(data.LIMEOutput);
+        const parsedLIME = data.LIMEOutput;
         console.log("Parsed LIME Output:", parsedLIME);
       } catch (error) {
         console.error("Error parsing LIME Output:", error);
