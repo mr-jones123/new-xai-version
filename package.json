@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "prepare": "husky",
-    "test": "echo \"No tests available\" && exit 0"
+    "lint": "next lint"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^0.1.8",
@@ -42,7 +40,8 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^3.0.1",
     "tailwind-scrollbar-hide": "^2.0.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vercel": "^41.7.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -51,7 +50,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
-    "husky": "^9.1.7",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
