@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { ContainerScroll } from "./ui/container-scroll-animation";
+// import { ContainerScroll } from "./ui/container-scroll-animation";
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image";
 import { FlipWords } from "@/components/ui/flip-words";
 import MaskedEffect from "@/components/MaskedEffect";
+import HowItWorks from "./HowItWorks";
+import WhyChooseUs from "@/components/WhyChooseUs";
+import ExplainabilitySection from "./ExplainabilitySection";
+import TeamSection from "./TeamSection";
 const Intro = () => {
   const words = ["Transparency", "Interpretability", "Explainability"];
   return (
-    <div>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
         <main className="container mx-auto px-4 py-16 md:py-24">
           <section className="max-w-3xl mx-auto text-center space-y-6 mt-20">
@@ -27,30 +30,33 @@ const Intro = () => {
               you can trust.
             </p>
             <Link href="/chatbot">
-              <Button size="lg" className="bg-blue-500 hover:bg-blue-600 mt-5">
+              <Button className="bg-blue-500 hover:bg-blue-600 mt-5">
                 Get Started
-              </Button>
+              </Button> 
             </Link>
           </section>
+
+          <section>
+            <HowItWorks />
+          </section>
+
+          <section>
+            <ExplainabilitySection />
+          </section>
+
+          <section>
+            <WhyChooseUs />
+          </section>
+
+          <MaskedEffect />
+
+          <section>
+            <TeamSection />
+          </section>
+
           
-          <section>
-            <ContainerScroll>
-              <Image
-                src={"/aiverson-pic.jpg"}
-                width={200}
-                height={200}
-                alt="Si Aiverson"
-              />
-            </ContainerScroll>
-          </section>
-
-          <section>
-              <MaskedEffect/>
-          </section>
-
         </main>
       </div>
-    </div>
   );
 };
 
