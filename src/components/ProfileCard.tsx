@@ -1,7 +1,6 @@
 "use client"
 import Image from "next/image"
 import Link from "next/link"
-import { Github, Linkedin } from "lucide-react"
 
 interface ProfileProps {
   name: string
@@ -52,7 +51,7 @@ export const ProfileCard = ({ name, role, image, linkedinUrl, githubUrl, color =
               className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
-              <Linkedin size={18} />
+              
             </Link>
           )}
 
@@ -64,7 +63,7 @@ export const ProfileCard = ({ name, role, image, linkedinUrl, githubUrl, color =
               className="bg-gray-800 hover:bg-gray-900 text-white p-2 rounded-full transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
-              <Github size={18} />
+             
             </Link>
           )}
         </div>

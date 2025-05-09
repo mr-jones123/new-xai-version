@@ -11,7 +11,6 @@ import TeamSection from "./TeamSection";
 const Intro = () => {
   const words = ["Transparency", "Interpretability", "Explainability"];
   return (
-    <div>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
         <main className="container mx-auto px-4 py-16 md:py-24">
           <section className="max-w-3xl mx-auto text-center space-y-6 mt-20">
@@ -33,7 +32,7 @@ const Intro = () => {
             <Link href="/chatbot">
               <Button className="bg-blue-500 hover:bg-blue-600 mt-5">
                 Get Started
-              </Button>
+              </Button> 
             </Link>
           </section>
 
@@ -58,7 +57,6 @@ const Intro = () => {
           
         </main>
       </div>
-    </div>
   );
 };
 

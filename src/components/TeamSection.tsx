@@ -1,9 +1,25 @@
 "use client"
 import { ProfileCard } from "./ProfileCard"
 import { getDevelopers, type Developer } from "@/lib/team"
+import { useState } from "react";
+import ProfileDialog from "./dialog";
+
 
 const TeamSection = () => {
-  const teamMembers = getDevelopers()
+
+  const teamMembers = getDevelopers();
+
+  const [selectedDev,setSelectedDev] = useState<(typeof teamMembers)[0]|null>(null);
+
+
+  const handleOpenDialog = (teamMember:(typeof teamMembers)[0])=> {
+    setSelectedDev(teamMember);
+  }
+
+  const handleCloseDialog = () =>{
+    setSelectedDev(null);
+  }
+ 
 
   return (
     <section className="py-20 bg-gradient-to-b from-white to-blue-50">
@@ -25,12 +41,25 @@ const TeamSection = () => {
               linkedinUrl={member.linkedinUrl}
               githubUrl={member.githubUrl}
               color={member.color as "blue" | "lightBlue" | "skyBlue" | "teal" | undefined}
+              onClick={() => handleOpenDialog(member)}
             />
           ))}
         </div>
-      </div>
-    </section>
-  )
+        </div>
+        {selectedDev && (
+          <ProfileDialog
+            isOpen = {!!selectedDev}
+            onClose={handleCloseDialog}
+            name={selectedDev.name}
+            role = {selectedDev.role}
+            image = {selectedDev.image}
+            linkedinURL= {selectedDev.linkedinUrl}
+            githubURL= {selectedDev.githubUrl}
+            />
+        )}
+        </section>
+  
+  );
 }
 
-export default TeamSection
+export default TeamSection;

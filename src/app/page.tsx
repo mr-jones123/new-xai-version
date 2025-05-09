@@ -1,4 +1,3 @@
-import About from "@/components/About";
 import Intro from "@/components/Intro";
 import FooterSection from "@/components/FooterSection";
 export default function Home() {
@@ -8,7 +7,7 @@ export default function Home() {
         <Intro />
       </section>
       <section id="about">
-        <About />
+      
       </section>
       <section>
         <FooterSection />

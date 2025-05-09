@@ -2,11 +2,26 @@
 
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+type LimeDataPoint = {
+  feature: string;
+  weight: number;
+};
+
+interface BarCustomProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  fill?: string;
+  payload?: LimeDataPoint;
+}
 
 interface ExplanationPanelProps {
   aiDetails: {
     AIResponse: string;
-    LIMEOutput: Array<{ feature: string; weight: number }>;
+    LIMEOutput: Array<LimeDataPoint>;
   } | null;
 }
 
@@ -14,6 +29,26 @@ export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
   if (!aiDetails) return null;
 
   const limeData = aiDetails.LIMEOutput;
+
+  // Custom renderer for tooltip bars
+  const CustomBar: React.FC<BarCustomProps> = ({ x = 0, y = 0, width = 0, height = 0, payload }) => {
+    if (!payload) return null;
+    
+    const { feature, weight } = payload;
+    
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <rect x={x} y={y} width={width} height={height} fill="#007bff" rx={4} ry={4} />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p><strong>{feature}</strong>: {weight.toFixed(3)}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
 
   return (
     <Card style={{ backgroundColor: "#f8f9fa" }}>
@@ -53,7 +88,8 @@ export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
                       dataKey="weight"
                       fill="#007bff"
                       radius={4}
-                      barSize={30} 
+                      barSize={30}
+                      shape={(props: BarCustomProps) => <CustomBar {...props} />}
                     >
                       <LabelList
                         dataKey="feature"
