@@ -1,8 +1,5 @@
 "use client";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import ChatInterface from "@/components/ChatInterface";
 import ExplanationPanel from "./ExplanationPanel";
 
@@ -13,14 +10,13 @@ interface ResponseType {
 }
 
 export default function Chatbot() {
-  const [input, setInput] = useState("");
   const [response, setResponse] = useState<ResponseType | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (input: string): Promise<string> => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/lime-algorithm", {
+      const res = await fetch(process.env.FLASK_ENDPOINT as string, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

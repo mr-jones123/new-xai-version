@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import NavBarWrapper from "@/utils/NavBarWrapper";
+import NavBarWrapper from "@/utils/navBarWrapper";
 
 const geist = Geist_Mono({
   subsets: ["latin"],

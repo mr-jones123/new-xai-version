@@ -45,7 +45,7 @@ export default function ChatInterface({
     } catch (error) {
       const errorMessage: Message = {
         sender: "ai",
-        text: "Sorry, something went wrong.",
+        text: `Sorry, something went wrong. ${error}`,
       };
       setMessages((prev) => [...prev, errorMessage]);
     }

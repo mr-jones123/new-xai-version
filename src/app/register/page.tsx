@@ -1,5 +1,5 @@
 import React from "react";
-import RegisterUI from "@/components/Register";
+import RegisterUI from "@/components/register";
 
 export default function registerPage() {
   return (
