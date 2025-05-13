@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "prepare": "husky",
-    "test": "echo \"No tests available\" && exit 0"
+    "lint": "next lint"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^0.1.8",
@@ -38,6 +36,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^9.0.3",
+    "recharts": "^2.15.3",
     "remark-gfm": "^4.0.1",
     "remeda": "2",
     "shiki": "^2.3.2",

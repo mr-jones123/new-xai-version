@@ -31,10 +31,13 @@ const Intro = () => {
             </p>
             <Link href="/chatbot">
               <Button className="bg-blue-500 hover:bg-blue-600 mt-5">
+              <Button className="bg-blue-500 hover:bg-blue-600 mt-5">
                 Get Started
+              </Button> 
               </Button> 
             </Link>
           </section>
+
 
           <section>
             <HowItWorks />

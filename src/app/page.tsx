@@ -12,6 +12,9 @@ export default function Home() {
       <section>
         <FooterSection />
       </section>
+      <section>
+        <FooterSection/>
+      </section>
     </div>
   );
 }
