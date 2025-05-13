@@ -28,7 +28,7 @@ const signInWith = (provider: Provider) => async (): Promise<void> => {
   if (data.url) {
     redirect(data.url);
   } else {
-    throw new Error("Redirect URL is null");
+    redirect("/error");
   }
 };
 
@@ -36,7 +36,31 @@ const signInWithGithub = signInWith("github");
 
 const signInWithGoogle = signInWith("google");
 
-//TODO
-//const signInWithEmail = async;
+const signOut = async () => {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/");
+};
 
-export { signInWith, signInWithGithub, signInWithGoogle };
+const signInWithEmail = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const data = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+  };
+
+  const { error } = await supabase.auth.signUp(data);
+
+  if (error) {
+    redirect("/error");
+  }
+};
+
+export {
+  signInWith,
+  signInWithGithub,
+  signInWithGoogle,
+  signInWithEmail,
+  signOut,
+};
