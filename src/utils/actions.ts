@@ -33,6 +33,10 @@ const signInWith = (provider: Provider) => async (): Promise<void> => {
 };
 
 const signInWithGithub = signInWith("github");
+
 const signInWithGoogle = signInWith("google");
+
+//TODO
+//const signInWithEmail = async;
 
 export { signInWith, signInWithGithub, signInWithGoogle };
