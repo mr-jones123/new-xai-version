@@ -6,12 +6,13 @@ import Image from "next/image";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "./ui/button";
+import { Menu, X } from "lucide-react";
 //import { signOut } from "@/utils/actions";
 
 const NavBar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [session, setSession] = useState<any>(null);
   const supabase = createClient();
-  const [isOpen] = useState(false);
   const pathname = usePathname();
 
   const router = useRouter();
@@ -21,6 +22,10 @@ const NavBar = () => {
     setSession(null);
     router.refresh();
     redirect("/");
+  };
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
   };
 
   useEffect(() => {
