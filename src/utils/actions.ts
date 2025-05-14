@@ -19,8 +19,7 @@ const signInWith = (provider: Provider) => async (): Promise<void> => {
   });
 
   if (error) {
-    console.error(`Error signing in with ${provider}:`, error.message);
-    return;
+    redirect("/error");
   }
 
   console.log("Sign-in data:", data);
@@ -36,11 +35,17 @@ const signInWithGithub = signInWith("github");
 
 const signInWithGoogle = signInWith("google");
 
-const signOut = async () => {
+/*const signOut = async () => {
   const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/");
-};
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    await supabase.auth.signOut();
+  }
+};*/
 
 const signInWithEmail = async (formData: FormData) => {
   const supabase = await createClient();
@@ -57,10 +62,4 @@ const signInWithEmail = async (formData: FormData) => {
   }
 };
 
-export {
-  signInWith,
-  signInWithGithub,
-  signInWithGoogle,
-  signInWithEmail,
-  signOut,
-};
+export { signInWith, signInWithGithub, signInWithGoogle, signInWithEmail };
