@@ -16,7 +16,7 @@ export default function Chatbot() {
   const handleSubmit = async (input: string): Promise<string> => {
     setLoading(true);
     try {
-      const res = await fetch(process.env.FLASK_ENDPOINT as string, {
+      const res = await fetch(process.env.NEXT_PUBLIC_FLASK_ENDPOINT as string, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

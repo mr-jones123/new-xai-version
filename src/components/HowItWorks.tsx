@@ -3,17 +3,17 @@ import { MessageSquare, Bot, BarChart2 } from "lucide-react";
 
 const HowItWorks: React.FC = () => {
   return (
-    <section className="py-24">
-      <div className="text-center mb-16">
-        <div className="border-t border-gray-200 my-20"></div>
-        <h2 className="text-4xl md:text-5xl font-bold mb-4">How it works?</h2>
-        <p className="text-gray-500 max-w-2xl mx-auto">
+    <section className="py-12 sm:py-16 md:py-24">
+      <div className="text-center mb-8 sm:mb-12 md:mb-16">
+        <div className="border-t border-gray-200 my-10 sm:my-16 md:my-20"></div>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 md:mb-4">How it works?</h2>
+        <p className="text-gray-500 max-w-2xl mx-auto px-4">
           See how our AI works—get answers, and understand the &lsquo;why&apos;
           behind them.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 px-4">
         <article className="flex flex-col items-center">
           <div className="bg-blue-50 rounded-3xl p-6 mb-6 w-full max-w-sm min-h-64 relative overflow-hidden">
             <div className="absolute top-4 right-4 bg-blue-100 rounded-full p-2">

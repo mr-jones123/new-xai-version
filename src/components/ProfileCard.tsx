@@ -27,17 +27,16 @@ export const ProfileCard = ({
     skyBlue: "bg-sky-100",
     teal: "bg-teal-50",
   };
-
   return (
-    <div className="w-64 cursor-pointer group" onClick={onClick}>
+    <div className="w-full sm:w-64 cursor-pointer group" onClick={onClick}>
       <div
-        className={`${colorVariants[color]} aspect-square pt-8 pb-4 px-6 text-center`}
+        className={`${colorVariants[color]} aspect-square pt-6 sm:pt-8 pb-3 sm:pb-4 px-4 sm:px-6 text-center`}
       >
-        <h3 className="font-bold text-xl text-gray-800">{name}</h3>
+        <h3 className="font-bold text-lg sm:text-xl text-gray-800">{name}</h3>
         <p className="text-sm text-gray-600">{role}</p>
       </div>
 
-      <div className="relative h-64 rounded-b-full overflow-hidden bg-gray-800">
+      <div className="relative h-48 sm:h-64 rounded-b-full overflow-hidden bg-gray-800">
         <div className="absolute inset-0 w-full h-full">
           <Image
             src={image || "/placeholder.svg?height=400&width=300"}
