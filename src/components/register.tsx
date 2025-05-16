@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import Image from "next/image";
-import { signInWithGithub, signInWithGoogle } from "@/utils/actions";
+import {
+  signInWithGithub,
+  signInWithGoogle,
+  signInWithEmail,
+} from "@/utils/actions";
 
 const RegisterUI = () => {
   return (
@@ -66,11 +70,17 @@ const RegisterUI = () => {
         <form className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="Email" required />
+            <Input
+              id="email"
+              type="email"
+              placeholder="Email"
+              name="email"
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required />
+            <Input id="password" type="password" name="password" required />
           </div>
           {/*
           <div className="space-y-2">
@@ -78,7 +88,7 @@ const RegisterUI = () => {
             <Input id="confirm-password" type="password" required />
           </div>
           */}
-          <Button className="w-full" type="submit">
+          <Button className="w-full" type="submit" formAction={signInWithEmail}>
             Register
           </Button>
         </form>
