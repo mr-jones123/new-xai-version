@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { confirmPassword } from "./validate";
+import { error } from "console";
 
 type Provider = "google" | "github";
 //ssr
@@ -39,7 +41,7 @@ const signInWithGithub = signInWith("github");
 
 const signInWithGoogle = signInWith("google");
 
-/*const signOut = async () => {
+const signOut = async () => {
   const supabase = await createClient();
 
   const {
@@ -49,24 +51,37 @@ const signInWithGoogle = signInWith("google");
   if (user) {
     await supabase.auth.signOut();
   }
-};*/
+
+  redirect("/")
+};
 
 const signInWithEmail = async (formData: FormData) => {
   const supabase = await createClient();
+
+  const passwordObj = {
+    password: formData.get("password") as string,
+    confirmPass: formData.get("confirm-password") as string
+  }
 
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   };
 
-  console.log(data)
+  console.log(data);
+  console.log(passwordObj);
 
-  const { error } = await supabase.auth.signUp(data);
-
-  if (error) {
-     console.error("SignUp Error:", error.message)
-    redirect("/error");
+  if(confirmPassword(passwordObj)){
+    const { error } = await supabase.auth.signUp(data);
+    if(error){
+      console.error("SignUp Error:", error.message)
+      redirect("/error");
+    }
+  }else {
+    console.log("Password does not match");
   }
+
+ 
 
    revalidatePath('/', 'layout');
    redirect('/');
@@ -94,4 +109,4 @@ const login = async (formData: FormData) => {
    redirect('/');
 }
 
-export { signInWith, signInWithGithub, signInWithGoogle, signInWithEmail, login };
+export { signInWith, signInWithGithub, signInWithGoogle, signInWithEmail, login , signOut};

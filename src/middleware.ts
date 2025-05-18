@@ -4,7 +4,8 @@ import { createServerClient } from "@supabase/ssr";
 
 //main middleware component
 
-const protectedRoutes = ["/chatbot", "/dashboard"];
+//adjust kung anong route iproprotect
+const protectedRoutes = ["/chatbot", "/dashboard" , "/error"];
 
 export async function middleware(request: NextRequest) {
 

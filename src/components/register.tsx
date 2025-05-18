@@ -82,12 +82,17 @@ const RegisterUI = () => {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" name="password" required />
           </div>
-          {/*
+
           <div className="space-y-2">
             <Label htmlFor="confirm-password">Confirm Password</Label>
-            <Input id="confirm-password" type="password" required />
+            <Input
+              id="confirm-password"
+              type="password"
+              name="confirm-password"
+              required
+            />
           </div>
-          */}
+
           <Button className="w-full" type="submit" formAction={signInWithEmail}>
             Register
           </Button>
