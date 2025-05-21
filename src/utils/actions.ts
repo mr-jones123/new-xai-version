@@ -15,8 +15,8 @@ const signInWith = (provider: Provider) => async (): Promise<void> => {
   // Determine the callback URL dynamically based on the environment
   const isLocalEnv = process.env.NODE_ENV === 'development';
   const auth_callback_url = isLocalEnv 
-    ? `${process.env.PRODUCTION_SITE_URL || 'http://localhost:3000'}/auth/callback`
-    : `/auth/callback`; // Use relative URL in production for better portability
+    ? `${process.env.TEST_SITE_URL || 'http://localhost:3000'}/auth/callback`
+    : `${process.env.PRODUCTION_SITE_URL}/auth/callback`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
