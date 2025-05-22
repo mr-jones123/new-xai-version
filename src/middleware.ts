@@ -43,6 +43,7 @@ export async function middleware(request: NextRequest) {
    
     if (!user) {
       const defaultUrl = new URL("/", request.url);
+      defaultUrl.searchParams.set("auth", "required");
       return NextResponse.redirect(defaultUrl);
     }
   }

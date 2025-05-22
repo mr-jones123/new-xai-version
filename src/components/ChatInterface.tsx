@@ -30,7 +30,7 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
   }, [])
 
   useEffect(() => {
-    // Scroll to bottom whenever messages change
+
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
@@ -85,7 +85,7 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
   )
 
   return (
-    <div className="flex flex-col min-h-screen relative">
+    <div className="flex flex-col min-h-screen relative overflow-auto">
       {messages.length === 0 ? (
         <div className="flex flex-col items-center justify-start flex-1 p-4 md:p-6 pt-12">
           <div className="w-full max-w-3xl mx-auto text-center">
@@ -96,17 +96,14 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 text-left font-geist">
               <h2 className="text-xl font-semibold text-blue-800 mb-3">How It Works</h2>
               <p className="mb-4">
-                XeeAI analyzes articles from political, entertainment, and opinion articles to classify whether it comes from a <span className="font-bold">verified source</span> or a <span className="font-bold">fake one. </span>
+                XeeAI analyzes Philippine articles from political, entertainment, and opinion articles to classify whether it comes from a <span className="font-bold">verified source</span> or a <span className="font-bold">fake one. </span>
                  After that, the Explainable AI Algorithm <span className="font-bold"> LIME (Local Interpretable Model Explanations)</span> will do the following:
               </p>
               <ol className="list-decimal pl-5 space-y-2 mb-4">
-                <li>Analyze the text for indicators of misinformation</li>
-                <li>Provide an assessment of its authenticity</li>
-                <li>Show which words or phrases influenced the decision</li>
+                <li>Approximates the behavior of the XeeAI</li>
+                <li>Generates variations of your input to see the change of AI output</li>
+                <li>Show which words or phrases influenced the AI's decision whether the input is <span className="font-bold">verified or not.</span></li>
               </ol>
-              <p className="mb-4">
-                In this way, you can understand how your input affects the model's decision. 
-              </p>
 
               {/* Disclaimer */}
               <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-4">
@@ -123,7 +120,7 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
               <div className="grid gap-2 md:grid-cols-2 max-w-2xl mx-auto font-geist">
                 {[
                   "Inaresto ng anti-scalawag and intelligence units ng Philippine National Police (PNP) ang isang anti-drug operative ng Pasay City Police Station ngayong araw, matapos na isangkot sa extortion at kidnapping.",
-                  "Puro mapapaklang komento ang ipinakakain ngayon sa isang pamosong female personality ng mismong mga tagahanga niya. Pinasukan ng kawalan ng utang na loob at pangtatraydor pa nga ang kanilang emosyon",
+                  "May bagong paandar angmga anti-DU30, at ito ay pag-po-post ng mga black and white videos ng mga peronalidad sa mundong showbiz at sining kung saan pinahahapyawan nila ang Duterte Administration.",
                 ].map((example, index) => (
                   <button
                     key={index}
@@ -168,7 +165,7 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
       )}
 
       {/* Fixed input bar at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 z-10">
+      <div className="absolute bottom-4 left-0 right-0  p-4 z-10">
         <div className="max-w-3xl mx-auto">{inputComponent}</div>
       </div>
     </div>

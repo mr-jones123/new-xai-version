@@ -20,9 +20,11 @@ interface ResponseType {
 export default function Chatbot() {
   const [response, setResponse] = useState<ResponseType | null>(null)
   const [loading, setLoading] = useState(false)
+  const [currentQuery, setCurrentQuery] = useState<string>("")
 
   const handleSubmit = async (input: string): Promise<string> => {
     setLoading(true)
+    setCurrentQuery(input)
     try {
       const res = await fetch(process.env.NEXT_PUBLIC_FLASK_ENDPOINT as string, {
         method: "POST",
@@ -84,7 +86,7 @@ export default function Chatbot() {
 
       {response?.aiDetails && (
         <div className="w-[350px] hidden md:block">
-          <ExplanationPanel aiDetails={response.aiDetails} />
+          <ExplanationPanel aiDetails={response.aiDetails} userQuery={currentQuery} />
         </div>
       )}
     </div>

@@ -14,7 +14,7 @@ import lime.lime_text
 lime.lime_text.multiprocessing = None  # Disable multiprocessing    
 from lime.lime_text import LimeTextExplainer
 
-# ==================== Setup Flask App ====================
+# 
 app = Flask(__name__)
 CORS(app)
 
@@ -104,6 +104,7 @@ def POST_Method():
 
         # Get prediction and probabilities
         pred_label, probs = bert_response(input_text)
+
         # If thresholded unknown
         if pred_label == 2 or probs.max() < 0.7:
             return jsonify({'AIResponse': "I don't know", 'LIMEOutput': [], 'rawPredictions': probs.tolist()}), 200

@@ -5,7 +5,8 @@ import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Too
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { InfoIcon, AlertTriangleIcon, CheckCircleIcon, HelpCircleIcon } from "lucide-react"
+import { InfoIcon, AlertTriangleIcon, CheckCircleIcon, HelpCircleIcon, Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 type LimeDataPoint = {
   feature: string
@@ -19,14 +20,16 @@ interface ExplanationPanelProps {
     localFidelity?: number | null
     rawPredictions?: number[]
   } | null
+  userQuery: string
 }
 
-export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
+export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPanelProps) {
   const [activeTab, setActiveTab] = useState("overview")
   const [isUncertainResponse, setIsUncertainResponse] = useState(false)
+  const [searchResults, setSearchResults] = useState<string[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
-    // Check if the AI response indicates uncertainty
     if (aiDetails?.AIResponse) {
       const uncertaintyPhrases = [
         "i don't know",
@@ -49,7 +52,6 @@ export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
 
   if (!aiDetails) return null
 
-  // Use real LIME data or empty array if uncertain
   const limeData = isUncertainResponse ? [] : aiDetails.LIMEOutput
 
   // Process raw predictions to create confidence scores
@@ -135,9 +137,35 @@ export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
 
   const verdictDisplay = getVerdictDisplay()
 
-  // Get local fidelity value with fallback
+
   const localFidelity =
-    aiDetails.localFidelity !== undefined && aiDetails.localFidelity !== null ? aiDetails.localFidelity : 98 // Fallback value
+    aiDetails.localFidelity !== undefined && aiDetails.localFidelity !== null ? aiDetails.localFidelity : 0 
+
+  const handleWebQuery = async () => {
+    if (!userQuery) return
+    
+    setIsSearching(true)
+    try {
+      const response = await fetch('/api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: userQuery }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Search failed')
+      }
+
+      const urls = await response.json()
+      setSearchResults(urls)
+    } catch (error) {
+      console.error('Search error:', error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
 
   return (
     <Card className="h-full overflow-hidden border-0 shadow-md">
@@ -223,19 +251,41 @@ export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
                     ))}
                   </div>
                 </div>
-
-                {aiDetails.localFidelity !== undefined && aiDetails.localFidelity !== null && (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">EXPLANATION QUALITY</h3>
-                    <div className="flex items-center">
-                      <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
-                        Local Fidelity: {(localFidelity * 100).toFixed(1)}%
-                      </Badge>
-                    </div>
-                  </div>
-                )}
               </>
             )}
+
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">DOUBLE CHECK</h3>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={handleWebQuery}
+                  disabled={isSearching}
+                  className="flex items-center gap-2 bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100"
+                >
+                  <Search className="h-4 w-4" />
+                  {isSearching ? "Searching..." : "Web Search Query"}
+                </Button>
+                {searchResults.length > 0 && (
+                  <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Related Sources:</h4>
+                    <ul className="space-y-2">
+                      {searchResults.map((url, index) => (
+                        <li key={index}>
+                          <a 
+                            href={url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline text-sm break-all"
+                          >
+                            {url}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="lime" className="m-0 p-4">
@@ -290,6 +340,16 @@ export default function ExplanationPanel({ aiDetails }: ExplanationPanelProps) {
                   stronger influence. Blue bars support the verdict, while red bars contradict it.
                 </p>
               </div>
+                  {aiDetails.localFidelity !== undefined && aiDetails.localFidelity !== null && (
+                  <div className="mt-6">
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">EXPLANATION QUALITY</h3>
+                    <div className="flex items-center">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
+                      {(localFidelity * 100).toFixed(1)}%
+                      </Badge>
+                    </div>
+                  </div>
+                )}
             </div>
           </TabsContent>
         </CardContent>

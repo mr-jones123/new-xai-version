@@ -3,7 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import NavBarWrapper from "@/components/ui/navBarWrapper";
-
+import { Toaster } from "@/components/ui/toaster"
 const geist = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist",
@@ -34,6 +34,7 @@ export default function RootLayout({
       <body className="antialiased">
         <NavBarWrapper />
         <div className="flex flex-col min-h-screen">{children}</div>
+        <Toaster />
       </body>
     </html>
   );
