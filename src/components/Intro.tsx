@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 const Intro = () => {
   const words = ["Transparency", "Interpretability", "Explainability"];
   const { toast } = useToast();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createClient();
 
