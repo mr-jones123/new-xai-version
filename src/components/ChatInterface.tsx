@@ -1,38 +1,93 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import type React from "react"
+import { Search } from "lucide-react" // Import Search component
 
 import { Input } from "@/components/ui/input"
 import { Send } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 import LoadingFacts from "./loading-facts"
+import LoadingWebSearch from "./loading-web-search"
 
 interface Message {
-  sender: "user" | "ai"
+  sender: "user" | "ai" | "web-search"
   text: string
+  type?: "normal" | "web-search"
 }
 
 interface ChatInterfaceProps {
   onSubmit: (input: string) => Promise<string>
   loading: boolean
+  webSearchLoading?: boolean
+  onWebSearchMessage?: (callback: (message: string) => void) => void
 }
 
-export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps) {
+export interface ChatInterfaceRef {
+  addWebSearchMessage: (message: string) => void
+}
+
+const ChatInterface = forwardRef<ChatInterfaceRef, ChatInterfaceProps>(({
+  onSubmit,
+  loading,
+  webSearchLoading = false,
+  onWebSearchMessage,
+}, ref) => {
   const [input, setInput] = useState<string>("")
   const [messages, setMessages] = useState<Message[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
+  useImperativeHandle(ref, () => ({
+    addWebSearchMessage: (message: string) => {
+      const webSearchMessage: Message = {
+        sender: "web-search",
+        text: message,
+        type: "web-search",
+      }
+      setMessages((prev) => [...prev, webSearchMessage])
+    }
+  }))
+
+  // Improved scroll behavior - scroll to bottom when messages change
   useEffect(() => {
-    document.body.style.overflow = "hidden"
+    if (messagesEndRef.current) {
+      // Use requestAnimationFrame to ensure DOM has updated before scrolling
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+      })
+    }
+  }, [messages, loading, webSearchLoading])
+
+  // Additional scroll handler for when the container resizes
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+      }
+    })
+
+    if (messagesContainerRef.current) {
+      observer.observe(messagesContainerRef.current)
+    }
+
     return () => {
-      document.body.style.overflow = ""
+      observer.disconnect()
     }
   }, [])
 
+  // Expose method to add web search messages
   useEffect(() => {
-
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    if (onWebSearchMessage) {
+      onWebSearchMessage((message: string) => {
+        const webSearchMessage: Message = {
+          sender: "web-search",
+          text: message,
+          type: "web-search",
+        }
+        setMessages((prev) => [...prev, webSearchMessage])
+      })
+    }
+  }, [onWebSearchMessage])
 
   const handleSend = async () => {
     if (!input.trim()) {
@@ -58,11 +113,14 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey && !loading) {
+    if (e.key === "Enter" && !e.shiftKey && !loading && !webSearchLoading) {
       e.preventDefault()
       handleSend()
     }
   }
+
+  // Check if there are AI messages to determine if right sidebar might be present
+  const hasAiMessages = messages.some((message) => message.sender === "ai")
 
   const inputComponent = (
     <div className="relative">
@@ -71,45 +129,69 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type your message..."
-        disabled={loading}
+        placeholder={webSearchLoading ? "Web search in progress..." : "Type your message..."}
+        disabled={loading || webSearchLoading}
       />
       <Button
         className="absolute right-1 top-1/2 transform -translate-y-1/2 p-2 z-5 w-8 h-8 rounded-full"
         onClick={handleSend}
-        disabled={loading || !input.trim()}
+        disabled={loading || webSearchLoading || !input.trim()}
       >
         <Send className="w-4 h-4"></Send>
       </Button>
     </div>
   )
 
+  const getMessageBubbleStyle = (message: Message) => {
+    if (message.sender === "user") {
+      return "bg-blue-500 text-white"
+    } else if (message.sender === "web-search") {
+      return "bg-green-100 text-green-900 border border-green-200"
+    } else {
+      return "bg-gray-200 text-gray-900"
+    }
+  }
+
   return (
-    <div className="flex flex-col min-h-screen relative overflow-auto">
+    <div className="flex flex-col h-full w-full relative">
       {messages.length === 0 ? (
-        <div className="flex flex-col items-center justify-start flex-1 p-4 md:p-6 pt-12">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin"
+          style={{ paddingBottom: "6rem" }}
+        >
           <div className="w-full max-w-3xl mx-auto text-center">
             <h1 className="text-3xl font-bold mb-3">Welcome to XeeAI</h1>
-            <p className="text-gray-600 mb-6 font-geist font-bold">Your AI assistant for identifying fake news in captions</p>
+            <p className="text-gray-600 mb-6 font-geist font-bold">
+              Your AI assistant for identifying fake news in captions
+            </p>
 
             {/* Tutorial section */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 text-left font-geist">
               <h2 className="text-xl font-semibold text-blue-800 mb-3">How It Works</h2>
               <p className="mb-4">
-                XeeAI analyzes Philippine articles from political, entertainment, and opinion articles to classify whether it comes from a <span className="font-bold">verified source</span> or a <span className="font-bold">fake one. </span>
-                 After that, the Explainable AI Algorithm <span className="font-bold"> LIME (Local Interpretable Model Explanations)</span> will do the following:
+                XeeAI analyzes articles from political, entertainment, and opinion articles to classify whether it comes
+                from a <span className="font-bold">verified source</span> or a{" "}
+                <span className="font-bold">fake one. </span>
+                After that, the Explainable AI Algorithm{" "}
+                <span className="font-bold"> LIME (Local Interpretable Model Explanations)</span> will do the following:
               </p>
               <ol className="list-decimal pl-5 space-y-2 mb-4">
                 <li>Approximates the behavior of the XeeAI</li>
                 <li>Generates variations of your input to see the change of AI output</li>
-                <li>Show which words or phrases influenced the AI's decision whether the input is <span className="font-bold">verified or not.</span></li>
+                <li>
+                  Show which words or phrases influenced the AI's decision whether the input is{" "}
+                  <span className="font-bold">verified or not.</span>
+                </li>
               </ol>
+              <p className="mb-4">In this way, you can understand how your input affects the model's decision.</p>
 
               {/* Disclaimer */}
               <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-4">
-                <p className="text-amber-800 font-medium">Disclaimer</p>
+                <p className="text-amber-800 font-medium">Note</p>
                 <p className="text-amber-700 text-sm">
-                  XeeAI is an AI tool and can make mistakes. Always verify information from multiple reliable sources.
+                  While XeeAI provides valuable insights, please note that our training data doesn't include the most
+                  recent news. We recommend cross-referencing with current sources for the latest information.
                 </p>
               </div>
             </div>
@@ -137,16 +219,26 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto pb-24 p-4 md:p-6 scrollbar-thin">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin"
+          style={{ paddingBottom: "6rem" }}
+        >
+          <div className={`mx-auto space-y-6 transition-all duration-300 ${hasAiMessages ? "max-w-2xl" : "max-w-3xl"}`}>
             {messages.map((message, index) => (
               <div key={index} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-xs md:max-w-md p-4 rounded-lg ${
-                    message.sender === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-900"
-                  }`}
-                >
-                  {message.text}
+                <div className={`max-w-xs md:max-w-md p-4 rounded-lg ${getMessageBubbleStyle(message)}`}>
+                  {message.type === "web-search" ? (
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Search className="w-4 h-4" />
+                        <span className="font-medium text-sm">Web Search Results</span>
+                      </div>
+                      <div className="text-sm">{message.text}</div>
+                    </div>
+                  ) : (
+                    message.text
+                  )}
                 </div>
               </div>
             ))}
@@ -159,15 +251,27 @@ export default function ChatInterface({ onSubmit, loading }: ChatInterfaceProps)
               </div>
             )}
 
+            {webSearchLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-md w-full">
+                  <LoadingWebSearch />
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} id="message-end" />
           </div>
         </div>
       )}
 
       {/* Fixed input bar at bottom */}
-      <div className="absolute bottom-4 left-0 right-0  p-4 z-10">
-        <div className="max-w-3xl mx-auto">{inputComponent}</div>
+      <div className="sticky bottom-0 left-0 right-0 bg-white border-t p-4 z-10">
+        <div className={`mx-auto transition-all duration-300 ${hasAiMessages ? "max-w-2xl" : "max-w-3xl"}`}>
+          {inputComponent}
+        </div>
       </div>
     </div>
   )
-}
+})
+
+export default ChatInterface

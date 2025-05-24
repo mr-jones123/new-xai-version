@@ -8,9 +8,9 @@ export default function Home() {
         <Intro />
       </section>
       <section id="about"></section>
-      <section>
+      {/* <section>
         <FooterSection />
-      </section>
+      </section> */}
     </div>
   );
 }

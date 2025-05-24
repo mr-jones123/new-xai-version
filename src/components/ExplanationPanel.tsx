@@ -1,11 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { InfoIcon, AlertTriangleIcon, CheckCircleIcon, HelpCircleIcon, Search } from "lucide-react"
+import { InfoIcon, AlertTriangleIcon, CheckCircleIcon, HelpCircleIcon, Search } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
 type LimeDataPoint = {
@@ -16,18 +15,23 @@ type LimeDataPoint = {
 interface ExplanationPanelProps {
   aiDetails: {
     AIResponse: string
-    LIMEOutput: Array<LimeDataPoint>
+    LIMEOutput?: Array<LimeDataPoint>
     localFidelity?: number | null
     rawPredictions?: number[]
   } | null
   userQuery: string
+  onWebSearch?: (query: string) => Promise<void>
+  webSearchLoading?: boolean
 }
 
-export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPanelProps) {
+export default function ExplanationPanel({
+  aiDetails,
+  userQuery,
+  onWebSearch,
+  webSearchLoading = false
+}: ExplanationPanelProps) {
   const [activeTab, setActiveTab] = useState("overview")
   const [isUncertainResponse, setIsUncertainResponse] = useState(false)
-  const [searchResults, setSearchResults] = useState<string[]>([])
-  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
     if (aiDetails?.AIResponse) {
@@ -52,21 +56,26 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
 
   if (!aiDetails) return null
 
-  const limeData = isUncertainResponse ? [] : aiDetails.LIMEOutput
-
   // Process raw predictions to create confidence scores
-  // Default to uncertain if no predictions or uncertain response
   const getConfidenceScores = () => {
-    if (isUncertainResponse || !aiDetails.rawPredictions || aiDetails.rawPredictions.length === 0) {
-      return [
+    if (!aiDetails.rawPredictions || aiDetails.rawPredictions.length === 0) {
+       // Handle case with no predictions gracefully
+       return [
         { name: "Verified", value: 0, color: "#10b981" },
         { name: "Fake", value: 0, color: "#ef4444" },
         { name: "Uncertain", value: 100, color: "#f59e0b" },
-      ]
+      ];
     }
 
-    // Convert raw predictions to percentages
     const total = aiDetails.rawPredictions.reduce((sum, val) => sum + val, 0)
+    // Ensure total is not zero to avoid division by zero
+    if (total === 0) {
+         return [
+        { name: "Verified", value: 0, color: "#10b981" },
+        { name: "Fake", value: 0, color: "#ef4444" },
+        { name: "Uncertain", value: 100, color: "#f59e0b" },
+      ];
+    }
 
     const scores = [
       {
@@ -81,7 +90,7 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
       },
     ]
 
-    // Add uncertain if it exists in predictions
+    // Add uncertain if it exists in predictions or calculate as remainder
     if (aiDetails.rawPredictions.length > 2) {
       scores.push({
         name: "Uncertain",
@@ -89,26 +98,31 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
         color: "#f59e0b",
       })
     } else {
-      // If no uncertain class in model, calculate as remainder to ensure total is 100%
-      const sum = scores[0].value + scores[1].value
-      if (sum < 100) {
-        scores.push({
-          name: "Uncertain",
-          value: 100 - sum,
-          color: "#f59e0b",
-        })
-      }
+      const sum = scores.reduce((acc, score) => acc + score.value, 0);
+        if (sum < 100) {
+            scores.push({
+                name: "Uncertain",
+                value: 100 - sum,
+                color: "#f59e0b",
+            });
+        }
     }
 
-    return scores
+    // Sort scores in descending order for display
+    return scores.sort((a, b) => b.value - a.value);
   }
 
   const confidenceScores = getConfidenceScores()
 
-  // Determine verdict based on highest confidence score
-  const verdict = isUncertainResponse
-    ? { name: "Uncertain", value: 100, color: "#f59e0b" }
-    : confidenceScores.reduce((prev, current) => (prev.value > current.value ? prev : current))
+  // Determine verdict based on highest confidence score, excluding uncertain if others are high
+  const verdict = confidenceScores.reduce((prev, current) => {
+      // If current is uncertain, only pick it if previous is also uncertain or 0 value
+      if (current.name === "Uncertain") {
+          return (prev.name === "Uncertain" || prev.value === 0) ? current : prev;
+      }
+      // Otherwise, pick the one with the higher value
+      return prev.value > current.value ? prev : current;
+  });
 
   const getVerdictDisplay = () => {
     switch (verdict.name) {
@@ -124,46 +138,26 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
           icon: <AlertTriangleIcon className="h-5 w-5 text-red-600 mr-1" />,
           description: "This content shows strong indicators of being false or misleading.",
         }
-      default:
+      default: // Handles Uncertain or any other unexpected case
         return {
           color: "bg-amber-100 text-amber-800 border-amber-200",
           icon: <HelpCircleIcon className="h-5 w-5 text-amber-600 mr-1" />,
           description: isUncertainResponse
             ? "The AI couldn't analyze this content. It may be out of topic or require more context."
-            : "We couldn't confidently determine the reliability of this content.",
+            : "We couldn't confidently determine the reliability of this content.", // Default uncertain message
         }
     }
   }
 
   const verdictDisplay = getVerdictDisplay()
 
-
-  const localFidelity =
-    aiDetails.localFidelity !== undefined && aiDetails.localFidelity !== null ? aiDetails.localFidelity : 0 
-
   const handleWebQuery = async () => {
-    if (!userQuery) return
-    
-    setIsSearching(true)
+    if (!userQuery || !onWebSearch) return
+  
     try {
-      const response = await fetch('/api', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: userQuery }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Search failed')
-      }
-
-      const urls = await response.json()
-      setSearchResults(urls)
+      await onWebSearch(userQuery)
     } catch (error) {
-      console.error('Search error:', error)
-    } finally {
-      setIsSearching(false)
+      console.error('Web search error:', error)
     }
   }
 
@@ -172,9 +166,9 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
       <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b pb-4">
         <CardTitle className="flex items-center text-xl">
           <InfoIcon className="mr-2 h-5 w-5 text-blue-600" />
-          AI Explanation
+          AI Analysis
         </CardTitle>
-        <CardDescription>Analysis powered by LIME algorithm</CardDescription>
+        <CardDescription>Understanding the AI's assessment</CardDescription>
       </CardHeader>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -184,14 +178,7 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
               value="overview"
               className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none rounded-none h-12"
             >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value="lime"
-              className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none rounded-none h-12"
-              disabled={isUncertainResponse || limeData.length === 0}
-            >
-              LIME Details
+              Details
             </TabsTrigger>
           </TabsList>
         </div>
@@ -200,7 +187,7 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
           <TabsContent value="overview" className="m-0 p-4 space-y-4">
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-1">AI RESPONSE</h3>
-              <p className="p-3 bg-gray-50 rounded-md text-gray-800">{aiDetails.AIResponse}</p>
+              <p className="p-3 bg-gray-50 rounded-md text-gray-800 whitespace-pre-wrap">{aiDetails.AIResponse}</p>
             </div>
 
             {isUncertainResponse ? (
@@ -225,28 +212,18 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
                       {verdictDisplay.icon}
                       {verdict.name}
                     </div>
-                    <span className="ml-2 text-lg font-bold">{verdict.value.toFixed(1)}%</span>
+                    <span className="ml-2 text-lg font-bold">{verdict.value.toFixed(1)}% Confidence</span>
                   </div>
                   <p className="text-sm text-gray-600">{verdictDisplay.description}</p>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">CONFIDENCE SCORES</h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">CONFIDENCE BREAKDOWN</h3>
                   <div className="space-y-2">
                     {confidenceScores.map((score) => (
-                      <div key={score.name} className="flex items-center">
-                        <div className="w-24 text-sm">{score.name}</div>
-                        <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${score.value}%`,
-                              backgroundColor: score.color,
-                              minWidth: score.value > 0 ? "8px" : "0",
-                            }}
-                          />
-                        </div>
-                        <div className="w-12 text-right text-sm ml-2">{score.value.toFixed(1)}%</div>
+                      <div key={score.name} className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">{score.name}:</span>
+                        <span className="text-sm text-gray-900">{score.value.toFixed(1)}%</span>
                       </div>
                     ))}
                   </div>
@@ -257,99 +234,15 @@ export default function ExplanationPanel({ aiDetails, userQuery }: ExplanationPa
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-2">DOUBLE CHECK</h3>
               <div className="flex flex-col gap-2">
-                <Button 
+                <Button
                   onClick={handleWebQuery}
-                  disabled={isSearching}
-                  className="flex items-center gap-2 bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100"
+                  disabled={webSearchLoading || !userQuery}
+                  className="flex items-center justify-center gap-2 bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100"
                 >
                   <Search className="h-4 w-4" />
-                  {isSearching ? "Searching..." : "Web Search Query"}
+                  {webSearchLoading ? "Searching..." : "Search on the Web"}
                 </Button>
-                {searchResults.length > 0 && (
-                  <div className="mt-2 p-3 bg-gray-50 rounded-md">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Related Sources:</h4>
-                    <ul className="space-y-2">
-                      {searchResults.map((url, index) => (
-                        <li key={index}>
-                          <a 
-                            href={url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline text-sm break-all"
-                          >
-                            {url}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="lime" className="m-0 p-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-3">LIME OUTPUT</h3>
-              {limeData.length > 0 ? (
-                <div className="h-[350px] overflow-visible">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={limeData} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                      <YAxis
-                        dataKey="feature"
-                        type="category"
-                        axisLine={false}
-                        tickLine={false}
-                        width={80}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <XAxis dataKey="weight" type="number" tickFormatter={(value) => value.toFixed(5)} />
-                      <Tooltip
-                        formatter={(value: number) => [value.toFixed(5), "Weight"]}
-                        labelFormatter={(label) => `Feature: ${label}`}
-                        contentStyle={{
-                          backgroundColor: "rgba(255, 255, 255, 0.95)",
-                          borderRadius: "6px",
-                          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                          border: "1px solid rgba(209, 213, 219, 0.5)",
-                        }}
-                      />
-                      <Bar dataKey="weight" radius={[0, 4, 4, 0]}>
-                        {limeData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.weight > 0 ? "#3b82f6" : "#ef4444"} />
-                        ))}
-                        <LabelList
-                          dataKey="weight"
-                          position="right"
-                          formatter={(value: number) => value.toFixed(5)}
-                          style={{ fontSize: 11 }}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="p-4 text-center text-gray-500">No LIME data available</div>
-              )}
-
-              <div className="mt-6 bg-blue-50 p-4 rounded-md">
-                <h4 className="font-medium text-blue-800 mb-2">Understanding LIME Output</h4>
-                <p className="text-sm text-blue-700">
-                  The chart above shows which words or phrases influenced the AI's decision. Longer bars indicate
-                  stronger influence. Blue bars support the verdict, while red bars contradict it.
-                </p>
-              </div>
-                  {aiDetails.localFidelity !== undefined && aiDetails.localFidelity !== null && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">EXPLANATION QUALITY</h3>
-                    <div className="flex items-center">
-                      <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
-                      {(localFidelity * 100).toFixed(1)}%
-                      </Badge>
-                    </div>
-                  </div>
-                )}
             </div>
           </TabsContent>
         </CardContent>

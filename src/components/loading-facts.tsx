@@ -5,24 +5,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 
 const facts = [
-  // LIME Algorithm Facts
-  "LIME (Local Interpretable Model-agnostic Explanations) helps explain which parts of a news caption influence the AI's decision.",
-  "LIME works by creating simplified local models that approximate how the AI makes decisions about specific news items.",
-  "LIME highlights words and phrases that are most indicative of fake or real news in the analyzed text.",
-  "LIME was developed by researchers Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin in 2016.",
-  "LIME helps build trust in AI by making complex fake news detection models more transparent and understandable.",
 
-  // Fake News in the Philippines Facts
-  "A 2018 study found that 88% of Filipinos have been exposed to fake news on social media.",
-  "The Philippines has one of the highest social media usage rates globally, making it vulnerable to misinformation.",
-  "During elections in the Philippines, fake news spreads rapidly through Facebook and messaging apps.",
-  "Fact-checking organizations like Vera Files and Rappler help combat fake news in the Philippines.",
-  "The Philippines passed the 'Bayanihan to Heal as One Act' in 2020, which included provisions against spreading false information.",
-  "Studies show that fake news in the Philippines often spreads through family WhatsApp and Facebook Messenger groups.",
-  "Media literacy programs are being implemented in Philippine schools to help students identify fake news.",
-  "During the COVID-19 pandemic, health-related misinformation was particularly prevalent in the Philippines.",
-  "Research shows that sensational headlines are more likely to be shared, which contributes to fake news spread in the Philippines.",
-  "A study by the University of the Philippines found that political fake news peaks during election periods.",
+  "Fake news spreads rapidly on social media in the Philippines, especially during election periods.",
+  "Fact-checking organizations like Vera Files and Rappler are key players in combating misinformation in the Philippines.",
+  "You can help spot fake news by checking if a story is reported by multiple reputable news sources.",
+  "Be cautious of sensational headlines or posts designed to trigger strong emotions – they can be signs of fake news.",
+  "Always check the source of information. Is it a credible news outlet or an unfamiliar page?",
+  "Misinformation in the Philippines often spreads through popular platforms like Facebook, TikTok, and messaging apps.",
+  "Cross-referencing information with established fact-checking websites like Vera Files and Rappler can help verify its authenticity.",
+  "Look for key details like the author, date, and sources cited in an article. Lack of these can be a red flag.",
 ]
 
 export default function LoadingFacts() {

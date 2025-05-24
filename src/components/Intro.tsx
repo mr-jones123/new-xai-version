@@ -13,7 +13,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 const Intro = () => {
-  const words = ["Transparency", "Interpretability", "Explainability"];
+  const words = ["Transparency", "Truth", "Clarity", "Trust"];
   const { toast } = useToast();
   const router = useRouter();
   const supabase = createClient();
@@ -44,12 +44,10 @@ const Intro = () => {
             </span>
           </h1>
           <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight mt-2 md:mt-4">
-            to AI decisions
+            to fake news.
           </h2>
           <p className="text-gray-600 font-geist text-base sm:text-lg md:text-xl max-w-2xl mx-auto px-2">
-            Understand the &apos;why&apos; behind AI decisions. XeeAI ensures
-            clarity and transparency by explaining every AI decision in a way
-            you can trust.
+            XeeAI is a sophisticated tool that uses BERT to detect fake news.
           </p>
           <Link href="/chatbot">
             <Button className="bg-blue-500 hover:bg-blue-600 mt-4 md:mt-5 text-sm md:text-base px-4 py-2 md:px-6 md:py-2.5" onClick={handleGetStarted}>
@@ -62,15 +60,15 @@ const Intro = () => {
           <HowItWorks />
         </section>
 
-        <section>
+        {/* <section>
           <ExplainabilitySection />
-        </section>
+        </section> */}
 
         <section>
           <WhyChooseUs />
         </section>
 
-        <MaskedEffect />
+        {/* <MaskedEffect /> */}
 
         <section>
           <TeamSection />

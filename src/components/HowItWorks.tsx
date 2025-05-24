@@ -1,5 +1,5 @@
 import type React from "react";
-import { MessageSquare, Bot, BarChart2 } from "lucide-react";
+import { Search, Shield, AlertTriangle } from "lucide-react";
 
 const HowItWorks = () => {
   return (
@@ -9,9 +9,8 @@ const HowItWorks = () => {
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 md:mb-4">
           How it works?
         </h2>
-        <p className="text-gray-500 max-w-2xl mx-auto px-4">
-          See how our AI works—get answers, and understand the &lsquo;why&apos;
-          behind them.
+        <p className="text-gray-500 max-w-2xl mx-auto px-4 font-geist text-xl">
+          Our AI-powered system helps you identify and verify news articles, ensuring you stay informed with accurate information.
         </p>
       </div>
 
@@ -25,8 +24,8 @@ const HowItWorks = () => {
             </div>
             <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
               <div className="flex items-center gap-2 mb-3">
-                <MessageSquare className="h-5 w-5 text-blue-500" />
-                <p className="text-sm font-medium">Chat with XeeAI</p>
+                <Search className="h-5 w-5 text-blue-500" />
+                <p className="text-sm font-medium">Submit News Article</p>
               </div>
               <div className="space-y-3">
                 {[1, 2].map((item) => (
@@ -38,11 +37,11 @@ const HowItWorks = () => {
               </div>
             </div>
             <div className="bg-blue-500 text-white rounded-xl p-4 ml-auto mr-4 max-w-[80%]">
-              <p className="text-sm">How do neural networks make decisions?</p>
+              <p className="text-sm">Lalaya na ren ang ating tatay mula sa Hague!</p>
             </div>
             <div className="mt-4 flex items-center gap-2 bg-white rounded-full p-2 pr-3 border border-gray-200">
               <div className="bg-blue-100 p-2 rounded-full">
-                <MessageSquare className="h-4 w-4 text-blue-500" />
+                <Search className="h-4 w-4 text-blue-500" />
               </div>
               <div className="bg-gray-100 h-4 rounded-full w-full" />
               <div className="bg-blue-500 rounded-full p-1">
@@ -61,10 +60,9 @@ const HowItWorks = () => {
               </div>
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-2">User Input</h3>
-          <p className="text-gray-500 text-center">
-            Type your question. Our goal isn&apos;t just to answer it, but to
-            help you understand why the AI responded the way it did.
+          <h3 className="text-2xl font-bold mb-2">Submit Content</h3>
+          <p className="text-gray-500 text-center font-geist">
+           Simply paste the contents of an article or a caption from social media that you might deem as fake information.
           </p>
         </article>
 
@@ -76,12 +74,12 @@ const HowItWorks = () => {
               </div>
             </div>
             <div className="bg-blue-500 text-white rounded-xl p-4 mr-auto ml-4 max-w-[80%] mb-4">
-              <p className="text-sm">How do neural networks make decisions?</p>
+              <p className="text-sm">Analyzing article credibility...</p>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-4">
               <div className="flex items-center gap-2 mb-3">
-                <Bot className="h-5 w-5 text-blue-500" />
-                <p className="text-sm font-medium">XeeAI</p>
+                <Shield className="h-5 w-5 text-blue-500" />
+                <p className="text-sm font-medium">AI Analysis</p>
               </div>
               <div className="space-y-2">
                 <div className="bg-gray-100 h-3 rounded-full w-full" />
@@ -92,16 +90,14 @@ const HowItWorks = () => {
               </div>
               <div className="mt-3 flex justify-end">
                 <div className="bg-blue-100 text-blue-500 text-xs px-2 py-1 rounded-md">
-                  See explanation →
+                  View analysis →
                 </div>
               </div>
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-2">AI Response</h3>
-          <p className="text-gray-500 text-center">
-            The AI shows the thought process behind its response. You&apos;ll
-            see what concepts or sources influenced the answer, so you can
-            understand how and why it arrived at that conclusion
+          <h3 className="text-2xl font-bold mb-2">AI Analysis</h3>
+          <p className="text-gray-500 text-center font-geist">
+            Our AI examines multiple factors including source credibility, content consistency, and fact-checking against reliable databases.
           </p>
         </article>
 
@@ -114,8 +110,8 @@ const HowItWorks = () => {
             </div>
             <div className="bg-white rounded-xl shadow-sm p-4 h-full">
               <div className="flex items-center gap-2 mb-3">
-                <BarChart2 className="h-5 w-5 text-blue-500" />
-                <p className="text-sm font-medium">Explanation</p>
+                <AlertTriangle className="h-5 w-5 text-blue-500" />
+                <p className="text-sm font-medium">Results</p>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div className="bg-blue-100 rounded-lg p-2">
@@ -139,10 +135,9 @@ const HowItWorks = () => {
               </div>
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-2">Visual Explanations</h3>
-          <p className="text-gray-500 text-center">
-            Interactive visualizations that break down how different pieces of
-            information affected the AI’s response.
+          <h3 className="text-2xl font-bold mb-2">Verification Results</h3>
+          <p className="text-gray-500 text-center font-geist">
+              XeeAI will either return <span className="font-bold">verified</span> or <span className="font-bold">fake.</span>
           </p>
         </article>
       </div>
