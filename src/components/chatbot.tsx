@@ -1,6 +1,6 @@
 "use client"
-import { useState, useRef } from "react"
-import ChatInterface, { type ChatInterfaceRef } from "@/components/ChatInterface"
+import { useState } from "react"
+import ChatInterface from "@/components/ChatInterface"
 import ExplanationPanel from "./ExplanationPanel"
 
 type LimeDataPoint = {
@@ -26,14 +26,13 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false)
   const [webSearchLoading, setWebSearchLoading] = useState(false)
   const [currentQuery, setCurrentQuery] = useState<string>("")
-  const chatInterfaceRef = useRef<ChatInterfaceRef>(null)
 
   const handleSubmit = async (input: string): Promise<string> => {
     setLoading(true)
     setCurrentQuery(input)
 
-    const tryEndpoint = async (endpoint: string) => {
-      const res = await fetch(endpoint, {
+    try {
+      const res = await fetch(process.env.NEXT_PUBLIC_FLASK_ENDPOINT as string, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,49 +50,30 @@ export default function Chatbot() {
         throw new Error("Empty response from server")
       }
 
-      return text
-    }
+      const data = JSON.parse(text)
 
-    try {
-      // Try primary endpoint first
-      let text
-      try {
-        text = await tryEndpoint(process.env.NEXT_PUBLIC_FLASK_ENDPOINT as string)
-      } catch (error) {
-        console.log("Primary endpoint failed, trying fallback...")
-        // Try fallback endpoint
-        text = await tryEndpoint(process.env.NEXT_PUBLIC_FLASK_FALLBACK_ENDPOINT as string)
+      // Transform the data from backend format to match your ResponseType interface
+      const formattedResponse: ResponseType = {
+        aiDetails: {
+          AIResponse: data.AIResponse || "No response provided",
+          LIMEOutput: data.LIMEOutput || [],
+          localFidelity: data.localFidelity || null,
+          rawPredictions: data.rawPredictions || [],
+        },
       }
 
-      try {
-        const data = JSON.parse(text)
+      setResponse(formattedResponse)
 
-        // Transform the data from backend format to match your ResponseType interface
-        const formattedResponse: ResponseType = {
-          aiDetails: {
-            AIResponse: data.AIResponse || "No response provided",
-            LIMEOutput: data.LIMEOutput || [],
-            localFidelity: data.localFidelity || null,
-            rawPredictions: data.rawPredictions || [],
-          },
-        }
-
-        setResponse(formattedResponse)
-
-        if (data.LIMEOutput) {
-          console.log("Parsed LIME Output:", data.LIMEOutput)
-        } else {
-          console.log("No LIME output available in response")
-        }
-
-        return `AI Response: ${data.AIResponse || "No response provided"}`
-      } catch (error) {
-        console.error("Error parsing response:", error)
-        return "Sorry, something went wrong."
+      if (data.LIMEOutput) {
+        console.log("Parsed LIME Output:", data.LIMEOutput)
+      } else {
+        console.log("No LIME output available in response")
       }
+
+      return `AI Response: ${data.AIResponse || "No response provided"}`
     } catch (error) {
       console.error("Error fetching data:", error)
-      return "Sorry, something went wrong."
+      return "Sorry, something went wrong. Please try again later."
     } finally {
       setLoading(false)
     }
@@ -103,7 +83,7 @@ export default function Chatbot() {
     setWebSearchLoading(true)
 
     try {
-      const response = await fetch("/api/", {
+      const response = await fetch("/api", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,34 +95,31 @@ export default function Chatbot() {
         throw new Error("Web search failed")
       }
 
-      const results = await response.json()
+      const data = await response.json()
 
-      // Format the search results for display
-      let searchResultText = "🔍 Here are some relevant sources I found:\n\n"
+      // Add web search message to chat
+      if (window.addWebSearchMessage) {
+        let searchResultText = "🔍 Here are some relevant sources I found:\n\n"
 
-      if (results && results.length > 0) {
-        results.forEach((result: { title: string; url: string; summary: string }, index: number) => {
-          searchResultText += `📰 **${result.title}**\n`
-          searchResultText += `📝 ${result.summary}\n`
-          searchResultText += `🔗 [Read more](${result.url})\n`
-          if (index < results.length - 1) {
-            searchResultText += "\n---\n\n"
-          }
-        })
-      } else {
-        searchResultText = "I couldn't find any related sources for this query."
-      }
+        if (data && data.length > 0) {
+          data.forEach((result: { title: string; url: string; summary: string }, index: number) => {
+            searchResultText += `📰 ${result.title}\n`
+            searchResultText += `📝 ${result.summary}\n`
+            searchResultText += `🔗 ${result.url}\n`
+            if (index < data.length - 1) {
+              searchResultText += "\n---\n\n"
+            }
+          })
+        } else {
+          searchResultText = "I couldn't find any related sources for this query."
+        }
 
-      // Add the web search message through the ref
-      if (chatInterfaceRef.current) {
-        chatInterfaceRef.current.addWebSearchMessage(searchResultText)
+        window.addWebSearchMessage(searchResultText)
       }
     } catch (error) {
       console.error("Web search error:", error)
-      if (chatInterfaceRef.current) {
-        chatInterfaceRef.current.addWebSearchMessage(
-          "Sorry, I encountered an error while searching the web. Please try again later.",
-        )
+      if (window.addWebSearchMessage) {
+        window.addWebSearchMessage("Sorry, I encountered an error while searching the web. Please try again later.")
       }
     } finally {
       setWebSearchLoading(false)
@@ -153,10 +130,12 @@ export default function Chatbot() {
     <div className="flex max-w-7xl mx-auto p-4 h-[100dvh] gap-4">
       <div className={response ? "flex-1" : "w-full"}>
         <ChatInterface
-          ref={chatInterfaceRef}
           onSubmit={handleSubmit}
           loading={loading}
           webSearchLoading={webSearchLoading}
+          onWebSearchMessage={(message) => {
+            // This prop is used to expose the message adding function
+          }}
         />
       </div>
 

@@ -3,19 +3,12 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
 import { InfoIcon, AlertTriangleIcon, CheckCircleIcon, HelpCircleIcon, Search } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-
-type LimeDataPoint = {
-  feature: string
-  weight: number
-}
 
 interface ExplanationPanelProps {
   aiDetails: {
     AIResponse: string
-    LIMEOutput?: Array<LimeDataPoint>
     localFidelity?: number | null
     rawPredictions?: number[]
   } | null
@@ -59,7 +52,6 @@ export default function ExplanationPanel({
   // Process raw predictions to create confidence scores
   const getConfidenceScores = () => {
     if (!aiDetails.rawPredictions || aiDetails.rawPredictions.length === 0) {
-       // Handle case with no predictions gracefully
        return [
         { name: "Verified", value: 0, color: "#10b981" },
         { name: "Fake", value: 0, color: "#ef4444" },
@@ -68,7 +60,6 @@ export default function ExplanationPanel({
     }
 
     const total = aiDetails.rawPredictions.reduce((sum, val) => sum + val, 0)
-    // Ensure total is not zero to avoid division by zero
     if (total === 0) {
          return [
         { name: "Verified", value: 0, color: "#10b981" },
@@ -90,7 +81,6 @@ export default function ExplanationPanel({
       },
     ]
 
-    // Add uncertain if it exists in predictions or calculate as remainder
     if (aiDetails.rawPredictions.length > 2) {
       scores.push({
         name: "Uncertain",
@@ -108,19 +98,15 @@ export default function ExplanationPanel({
         }
     }
 
-    // Sort scores in descending order for display
     return scores.sort((a, b) => b.value - a.value);
   }
 
   const confidenceScores = getConfidenceScores()
 
-  // Determine verdict based on highest confidence score, excluding uncertain if others are high
   const verdict = confidenceScores.reduce((prev, current) => {
-      // If current is uncertain, only pick it if previous is also uncertain or 0 value
       if (current.name === "Uncertain") {
           return (prev.name === "Uncertain" || prev.value === 0) ? current : prev;
       }
-      // Otherwise, pick the one with the higher value
       return prev.value > current.value ? prev : current;
   });
 
@@ -138,13 +124,13 @@ export default function ExplanationPanel({
           icon: <AlertTriangleIcon className="h-5 w-5 text-red-600 mr-1" />,
           description: "This content shows strong indicators of being false or misleading.",
         }
-      default: // Handles Uncertain or any other unexpected case
+      default:
         return {
           color: "bg-amber-100 text-amber-800 border-amber-200",
           icon: <HelpCircleIcon className="h-5 w-5 text-amber-600 mr-1" />,
           description: isUncertainResponse
             ? "The AI couldn't analyze this content. It may be out of topic or require more context."
-            : "We couldn't confidently determine the reliability of this content.", // Default uncertain message
+            : "We couldn't confidently determine the reliability of this content.",
         }
     }
   }
@@ -215,18 +201,6 @@ export default function ExplanationPanel({
                     <span className="ml-2 text-lg font-bold">{verdict.value.toFixed(1)}% Confidence</span>
                   </div>
                   <p className="text-sm text-gray-600">{verdictDisplay.description}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">CONFIDENCE BREAKDOWN</h3>
-                  <div className="space-y-2">
-                    {confidenceScores.map((score) => (
-                      <div key={score.name} className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{score.name}:</span>
-                        <span className="text-sm text-gray-900">{score.value.toFixed(1)}%</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </>
             )}

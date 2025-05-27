@@ -5,7 +5,7 @@ import { Search } from "lucide-react" // Import Search component
 
 import { Input } from "@/components/ui/input"
 import { Send } from "lucide-react"
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
+import { useState, useEffect, useRef } from "react"
 import LoadingFacts from "./loading-facts"
 import LoadingWebSearch from "./loading-web-search"
 
@@ -19,34 +19,19 @@ interface ChatInterfaceProps {
   onSubmit: (input: string) => Promise<string>
   loading: boolean
   webSearchLoading?: boolean
-  onWebSearchMessage?: (callback: (message: string) => void) => void
+  onWebSearchMessage?: (message: string) => void
 }
 
-export interface ChatInterfaceRef {
-  addWebSearchMessage: (message: string) => void
-}
-
-const ChatInterface = forwardRef<ChatInterfaceRef, ChatInterfaceProps>(({
+export default function ChatInterface({
   onSubmit,
   loading,
   webSearchLoading = false,
   onWebSearchMessage,
-}, ref) => {
+}: ChatInterfaceProps) {
   const [input, setInput] = useState<string>("")
   const [messages, setMessages] = useState<Message[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
-
-  useImperativeHandle(ref, () => ({
-    addWebSearchMessage: (message: string) => {
-      const webSearchMessage: Message = {
-        sender: "web-search",
-        text: message,
-        type: "web-search",
-      }
-      setMessages((prev) => [...prev, webSearchMessage])
-    }
-  }))
 
   // Improved scroll behavior - scroll to bottom when messages change
   useEffect(() => {
@@ -78,14 +63,21 @@ const ChatInterface = forwardRef<ChatInterfaceRef, ChatInterfaceProps>(({
   // Expose method to add web search messages
   useEffect(() => {
     if (onWebSearchMessage) {
-      onWebSearchMessage((message: string) => {
+      // Store the function to add web search messages
+      window.addWebSearchMessage = (message: string) => {
         const webSearchMessage: Message = {
           sender: "web-search",
           text: message,
           type: "web-search",
         }
         setMessages((prev) => [...prev, webSearchMessage])
-      })
+      }
+    }
+
+    return () => {
+      if (window.addWebSearchMessage) {
+        delete window.addWebSearchMessage
+      }
     }
   }, [onWebSearchMessage])
 
@@ -190,8 +182,14 @@ const ChatInterface = forwardRef<ChatInterfaceRef, ChatInterfaceProps>(({
               <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-4">
                 <p className="text-amber-800 font-medium">Note</p>
                 <p className="text-amber-700 text-sm">
-                  While XeeAI provides valuable insights, please note that our training data doesn't include the most
-                  recent news. We recommend cross-referencing with current sources for the latest information.
+                  While XeeAI provides valuable insights, please note that our training data doesn't include the most recent news. 
+                  We recommend cross-referencing with current sources for the latest information.
+                </p>
+              </div>
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mt-4">
+                <p className="text-amber-800 font-medium">Another Note</p>
+                <p className="text-amber-700 text-sm">
+                    The LIME Algorithm perturbs your input so the longer the text you use (which is totally okay), the longer the response might be. So please bear with us :DD
                 </p>
               </div>
             </div>
@@ -201,8 +199,8 @@ const ChatInterface = forwardRef<ChatInterfaceRef, ChatInterfaceProps>(({
               <h3 className="text-lg font-medium mb-3">Try these examples:</h3>
               <div className="grid gap-2 md:grid-cols-2 max-w-2xl mx-auto font-geist">
                 {[
-                  "Inaresto ng anti-scalawag and intelligence units ng Philippine National Police (PNP) ang isang anti-drug operative ng Pasay City Police Station ngayong araw, matapos na isangkot sa extortion at kidnapping.",
-                  "May bagong paandar angmga anti-DU30, at ito ay pag-po-post ng mga black and white videos ng mga peronalidad sa mundong showbiz at sining kung saan pinahahapyawan nila ang Duterte Administration.",
+                  "Kasama sa programa ang pananalangin, bulaklak at pagsindi ng kandila para sa mga biktima ng massacre. Makikibahagi ang iba ibang kasapi ng media at ang grupo ng National Union of Journalists of the Philippines (NUJP). Ang hindi makakasama na mga kaanak ng Maguindanao massacre victims ngayong Sabado ay inaasahang bukas na lamang tutungo sa site kasama si Department of Secretary (DoJ) Secretary Leila De Lima.",
+                  "May bagong paandar ang mga anti-DU30, at ito ay pag-po-post ng mga black and white videos ng mga peronalidad sa mundong showbiz at sining kung saan pinahahapyawan nila ang Duterte Administration. Ngunit sa serye ng mga videos na kanilang inilathala sa kanilang Facebook page, ang video ni Director Joel Lamangan ang pinagpiyestahan ng husto ng mga netizens.",
                 ].map((example, index) => (
                   <button
                     key={index}
@@ -234,7 +232,19 @@ const ChatInterface = forwardRef<ChatInterfaceRef, ChatInterfaceProps>(({
                         <Search className="w-4 h-4" />
                         <span className="font-medium text-sm">Web Search Results</span>
                       </div>
-                      <div className="text-sm">{message.text}</div>
+                      <div className="text-sm">
+                        {message.text.split('\n').map((line, lineIndex) => {
+                          const trimmedLine = line.trim();
+                          if (!trimmedLine) return null;
+                          
+                          return (
+                            <div key={lineIndex} className="flex items-start gap-2 mb-1">
+                              <span className="text-green-600 mt-1">•</span>
+                              <span>{trimmedLine}</span>
+                            </div>
+                          );
+                        }).filter(Boolean)}
+                      </div>
                     </div>
                   ) : (
                     message.text
@@ -272,6 +282,11 @@ const ChatInterface = forwardRef<ChatInterfaceRef, ChatInterfaceProps>(({
       </div>
     </div>
   )
-})
+}
 
-export default ChatInterface
+// Extend window interface for TypeScript
+declare global {
+  interface Window {
+    addWebSearchMessage?: (message: string) => void
+  }
+}
