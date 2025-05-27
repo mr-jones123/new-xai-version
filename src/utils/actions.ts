@@ -16,7 +16,7 @@ const signInWith = (provider: Provider) => async (): Promise<void> => {
   const isLocalEnv = process.env.NODE_ENV === 'development';
   const auth_callback_url = isLocalEnv 
     ? `${process.env.TEST_SITE_URL || 'http://localhost:3000'}/auth/callback`
-    : `${process.env.PRODUCTION_SITE_URL}/auth/callback`;
+    : `${process.env.PRODUCTION_SITE_URL_NEW}/auth/callback`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,

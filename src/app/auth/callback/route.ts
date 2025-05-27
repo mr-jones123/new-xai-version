@@ -21,7 +21,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${process.env.TEST_SITE_URL || origin}${next}`);
       } else {
         // In production, use PRODUCTION_SITE_URL
-        return NextResponse.redirect(`${process.env.PRODUCTION_SITE_URL || origin}${next}`);
+        return NextResponse.redirect(`${process.env.PRODUCTION_SITE_URL_NEW || origin}${next}`);
       }
     }
   }
